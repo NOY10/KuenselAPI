@@ -6,8 +6,9 @@ const app = express()
 
 const articles = []
 
-axios.get("https://kuenselonline.com/")
+axios.get("https://kuenselonline.com/",)
     .then(response => {
+        
         const html = response.data
         const $ = cheerio.load(html)
 
@@ -25,11 +26,18 @@ axios.get("https://kuenselonline.com/")
                         date,
                         Url
                     })
-                    
                 })
-            })
+                
+            }).catch(function (error) {
+                // handle error
+                console.log(error);
+              })
         })
     })
+    .catch(function (error) {
+        // handle error
+        console.log(error);
+      })
 
 
 app.get('/', (req,res) => {
@@ -41,3 +49,4 @@ app.get('/news', (req,res) => {
 })
 
 app.listen(PORT, () => console.log(`server running on PORT ${PORT}`))
+module.exports = app;
