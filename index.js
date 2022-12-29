@@ -49,4 +49,3 @@ app.get('/news', (req,res) => {
 })
 
 app.listen(PORT, () => console.log(`server running on PORT ${PORT}`))
-module.exports = app;
