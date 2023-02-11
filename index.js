@@ -6,6 +6,12 @@ const app = express()
 
 const articles = []
 
+app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    next();
+  });
+  
+
 axios.get("https://kuenselonline.com/",)
     .then(response => {
         
