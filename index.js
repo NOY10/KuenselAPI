@@ -47,3 +47,4 @@ app.get('/news', (req, res) => {
 getArticles().then(() => {
   app.listen(PORT, () => console.log(`server running on PORT ${PORT}`));
 });
+
