@@ -1,57 +1,49 @@
-const PORT = process.env.PORT ||8000;
+const PORT = process.env.PORT || 8000;
 const express = require('express');
-const axios = require('axios')
-const cheerio = require('cheerio')
-const app = express()
+const axios = require('axios');
+const cheerio = require('cheerio');
+const app = express();
 
-const articles = []
+let articles = [];
 
-app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', '*');
-    next();
-  });
-  
+const getArticles = async () => {
+  try {
+    const response = await axios.get("https://kuenselonline.com/");
+    const html = response.data;
+    const $ = cheerio.load(html);
 
-axios.get("https://kuenselonline.com/",)
-    .then(response => {
-        
-        const html = response.data
-        const $ = cheerio.load(html)
-
-        $('div[class="col-md-3"]').find('div > div > h5 > a', html).each(function () {
-            const title =$(this).text().trim()
-            const Url = $(this).attr('href')
-            
-            axios.get(Url).then(response =>{
-                const html = response.data
-                const $ = cheerio.load(html)
-                $('div[class="page-header-details"]').find('span', html).first().each(function (){
-                    const date =$(this).text().trim()
-                    articles.push({
-                        title,
-                        date,
-                        Url
-                    })
-                })
-                
-            }).catch(function (error) {
-                // handle error
-                console.log(error);
-              })
-        })
-    })
-    .catch(function (error) {
-        // handle error
+    $('div[class="col-md-3"]').find('div > div > h5 > a', html).each(async function () {
+      const title = $(this).text().trim();
+      const Url = $(this).attr('href');
+      try {
+        const response = await axios.get(Url);
+        const html = response.data;
+        const $ = cheerio.load(html);
+        $('div[class="page-header-details"]').find('span', html).first().each(function () {
+          const date = $(this).text().trim();
+          articles.push({
+            title,
+            date,
+            Url
+          });
+        });
+      } catch (error) {
         console.log(error);
-      })
+      }
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};
 
+app.get('/', (req, res) => {
+  res.json('Top Stories of Kuensel');
+});
 
-app.get('/', (req,res) => {
-    res.json('Top Stories of Kuensel')
-})
+app.get('/news', (req, res) => {
+  res.json(articles);
+});
 
-app.get('/news', (req,res) => {
-  res.json(articles)
-})
-
-app.listen(PORT, () => console.log(`server running on PORT ${PORT}`))
+getArticles().then(() => {
+  app.listen(PORT, () => console.log(`server running on PORT ${PORT}`));
+});
